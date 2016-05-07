@@ -1,8 +1,9 @@
 package net.pixelstatic.pixtigen.desktop;
 
+import net.pixelstatic.pixtigen.Pixtigen;
+
 import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
-import net.pixelstatic.pixtigen.Pixtigen;
 
 public class DesktopLauncher {
 	public static void main (String[] arg) {
