@@ -1,18 +1,17 @@
 package net.pixelstatic.pixtigen.gui;
 
-import javax.swing.JFileChooser;
-import javax.swing.JOptionPane;
-
 import net.pixelstatic.pixtigen.Pixtigen;
 import net.pixelstatic.pixtigen.generator.Filter;
 import net.pixelstatic.pixtigen.generator.Material;
 import net.pixelstatic.pixtigen.generator.VertexObject.PolygonType;
 import net.pixelstatic.utils.modules.Module;
 import net.pixelstatic.utils.scene2D.ColorPicker;
+import net.pixelstatic.utils.scene2D.FileDialog;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.InputMultiplexer;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.scenes.scene2d.*;
@@ -42,7 +41,7 @@ public class VertexGUI extends Module<Pixtigen>{
 	public void update(){
 		if(Gdx.input.isKeyPressed(Keys.ESCAPE)) Gdx.app.exit();
 		updateButtons();
-		Gdx.gl.glClearColor(20/255f, 33/255f, 52/255f, 1);
+		Gdx.gl.glClearColor(20 / 255f, 33 / 255f, 52 / 255f, 1);
 		stage.act(Gdx.graphics.getDeltaTime());
 		stage.draw();
 	}
@@ -193,16 +192,14 @@ public class VertexGUI extends Module<Pixtigen>{
 		Button exportbutton = new TextButton("Export", skin);
 		exportbutton.addListener(new ClickListener(){
 			public void clicked(InputEvent event, float x, float y){
-				JFileChooser chooser = new JFileChooser();
-				int option = chooser.showSaveDialog(null);
-				if(option == JFileChooser.APPROVE_OPTION){
+				new FileDialog(stage, skin, "Export Image", true, (FileHandle file) -> {
 					try{
-						editor.exportImage(chooser.getSelectedFile().getAbsolutePath());
+						editor.exportImage(file.file().getAbsolutePath());
 					}catch(Exception e){
-						JOptionPane.showMessageDialog(null, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+						showInfo(e.getMessage());
 						e.printStackTrace();
 					}
-				}
+				});
 			}
 		});
 
@@ -212,16 +209,14 @@ public class VertexGUI extends Module<Pixtigen>{
 		Button savebutton = new TextButton("Save", skin);
 		savebutton.addListener(new ClickListener(){
 			public void clicked(InputEvent event, float x, float y){
-				JFileChooser chooser = new JFileChooser();
-				int option = chooser.showSaveDialog(null);
-				if(option == JFileChooser.APPROVE_OPTION){
+				new FileDialog(stage, skin, "Save", true, (FileHandle file) -> {
 					try{
-						editor.saveState(Gdx.files.absolute(chooser.getSelectedFile().getAbsolutePath()));
+						editor.saveState(Gdx.files.absolute(file.file().getAbsolutePath()));
 					}catch(Exception e){
-						JOptionPane.showMessageDialog(null, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+						showInfo(e.getMessage());
 						e.printStackTrace();
 					}
-				}
+				});
 			}
 		});
 
@@ -231,17 +226,15 @@ public class VertexGUI extends Module<Pixtigen>{
 		Button loadbutton = new TextButton("Load", skin);
 		loadbutton.addListener(new ClickListener(){
 			public void clicked(InputEvent event, float x, float y){
-				JFileChooser chooser = new JFileChooser();
-				int option = chooser.showOpenDialog(null);
-				if(option == JFileChooser.APPROVE_OPTION){
+				new FileDialog(stage, skin, "Load", false, (FileHandle file) -> {
 					try{
-						editor.loadState(Gdx.files.absolute(chooser.getSelectedFile().getAbsolutePath()));
+						editor.loadState(Gdx.files.absolute(file.file().getAbsolutePath()));
 						((ColorPicker)editdialog.getContentTable().findActor("colorpicker")).setColor(materialbox.getSelected().color);
 					}catch(Exception e){
-						JOptionPane.showMessageDialog(null, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+						showInfo(e.getMessage());
 						e.printStackTrace();
 					}
-				}
+				});
 			}
 		});
 
@@ -269,7 +262,7 @@ public class VertexGUI extends Module<Pixtigen>{
 		};
 
 		TextButton closebutton = new TextButton("x", skin);
-		
+
 		closebutton.addListener(new ClickListener(){
 			public void clicked(InputEvent event, float x, float y){
 				editdialog.hide();
@@ -482,7 +475,6 @@ public class VertexGUI extends Module<Pixtigen>{
 
 		editor.selectedCanvas.updateBoxes(this);
 	}
-
 
 	void add(Actor actor){
 		table.row().top().right();

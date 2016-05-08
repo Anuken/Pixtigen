@@ -230,7 +230,7 @@ public class VertexEditor extends Module<Pixtigen>{
 	}
 	
 	@SuppressWarnings("unchecked")
-	void loadState(FileHandle file){
+	void loadState(FileHandle file) throws Exception{
 		EditorState save = EditorState.readState(file);
 		
 		//note: this random casting is needed because JSON serializes enums as strings?
