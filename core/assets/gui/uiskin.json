@@ -11,12 +11,12 @@ com.badlogic.gdx.scenes.scene2d.ui.Skin$TintedDrawable: {
 	dialogDim: { name: white, color: { r: 0, g: 0, b: 0, a: 0.45 } },
 },
 com.badlogic.gdx.scenes.scene2d.ui.Button$ButtonStyle: {
-	default: { down: default-round-down, up: default-round, over: default-round-over},
-	toggle: { down: default-round-down, checked: default-round-down, up: default-round }
+	default: { down: default-round-down, up: default-round, over: default-round-over, disabled: default-round-disabled},
+	toggle: { down: default-round-down, checked: default-round-down, up: default-round, disabled: default-round-disabled}
 },
 com.badlogic.gdx.scenes.scene2d.ui.TextButton$TextButtonStyle: {
-	default: { down: default-round-down, up: default-round, over: default-round-over, font: default-font, fontColor: text },
-	toggle: { down: default-round-down, up: default-round, over: default-round-over, checked: default-round-down, font: default-font, fontColor: text, downFontColor: white }
+	default: { down: default-round-down, up: default-round, over: default-round-over, font: default-font, fontColor: text, disabled: default-round-disabled},
+	toggle: { down: default-round-down, up: default-round, over: default-round-over, checked: default-round-down, font: default-font, fontColor: text, downFontColor: white, disabled: default-round-disabled }
 },
 com.badlogic.gdx.scenes.scene2d.ui.ScrollPane$ScrollPaneStyle: {
 	default: { vScroll: default-scroll, hScrollKnob: default-round-large, background: default-rect, hScroll: default-scroll, vScrollKnob: default-round-large }
@@ -51,7 +51,7 @@ com.badlogic.gdx.scenes.scene2d.ui.TextField$TextFieldStyle: {
 	default: { selection: selection, background: textfield, font: default-font, fontColor: white, cursor: cursor }
 },
 com.badlogic.gdx.scenes.scene2d.ui.CheckBox$CheckBoxStyle: {
-	default: { checkboxOn: check-on, checkboxOff: check-off, checkboxOver: check-over, font: default-font, fontColor: white }
+	default: { checkboxOn: check-on, checkboxOff: check-off, checkboxOnDisabled: check-on-disabled, checkboxOffDisabled: check-off-disabled, checkboxOver: check-over, font: default-font, fontColor: white }
 },
 com.badlogic.gdx.scenes.scene2d.ui.List$ListStyle: {
 	default: { fontColorUnselected: white, selection: selection, fontColorSelected: white, font: default-font }
@@ -68,13 +68,19 @@ com.badlogic.gdx.scenes.scene2d.ui.TextTooltip$TextTooltipStyle: {
 		background: default-pane
 	}
 },
-"net.pixelstatic.utils.scene2D.DefaultFileChooser$Style": {
-    "default": {
-        "pathFieldStyle": "default",
-        "contentsStyle": "default",
-        "buttonStyles": "default",
-        "space": 10,
-        "contentsPaneStyle": "default"
+net.pixelstatic.utils.scene2D.DefaultFileChooser$Style: {
+    default: {
+        pathFieldStyle: default,
+        contentsStyle: default,
+        buttonStyle: default,
+        space: 10,
+        contentsPaneStyle: default
     }
+},
+net.pixelstatic.utils.scene2D.ColorPicker$Style: {
+	default: {
+    	colorbox: colorbar
+		border: default-rect
+	}
 },
 }

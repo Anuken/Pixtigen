@@ -52,15 +52,10 @@ public class VertexGUI extends Module<Pixtigen>{
 		symmetry.setChecked(editor.selectedCanvas.symmetry);
 		overwrite.setChecked(drawMode);
 		overwrite.setText(drawMode ? "Draw Mode" : "Edit Mode");
-		clear.setColor( !drawMode ? Color.LIGHT_GRAY : Color.WHITE);
-		clear.setTouchable( !drawMode ? Touchable.disabled : Touchable.enabled);
-		symmetry.setColor( !drawMode ? Color.LIGHT_GRAY : Color.WHITE);
-		symmetry.setTouchable( !drawMode ? Touchable.disabled : Touchable.enabled);
-		delete.setColor( !drawMode ? Color.LIGHT_GRAY : Color.WHITE);
-		delete.setTouchable( !drawMode ? Touchable.disabled : Touchable.enabled);
-		smooth.setColor( !drawMode ? Color.LIGHT_GRAY : Color.WHITE);
-		smooth.setTouchable( !drawMode ? Touchable.disabled : Touchable.enabled);
-
+		clear.setDisabled(!drawMode);
+		symmetry.setDisabled(!drawMode);
+		delete.setDisabled(!drawMode);
+		smooth.setDisabled(!drawMode);
 	}
 
 	public void init(){
@@ -73,10 +68,6 @@ public class VertexGUI extends Module<Pixtigen>{
 
 	public VertexGUI(){
 		skin = new Skin(Gdx.files.internal("gui/uiskin.json"));
-		skin.add("colorbox", new Texture("gui/colorbox.png"));
-		skin.add("colorbar", new Texture("gui/colorbar.png"));
-		skin.add("darknessbar", new Texture("gui/darknessbar.png"));
-		skin.add("blank", new Texture("gui/blank.png"));
 		stage = new Stage();
 		stage.setViewport(new ScreenViewport());
 		ActorAlign.stage = stage;
@@ -324,10 +315,8 @@ public class VertexGUI extends Module<Pixtigen>{
 				}
 			});
 			if(filter.alwaysEnabled()){
-				checkbox.setTouchable(Touchable.disabled);
+				checkbox.setDisabled(true);
 				checkbox.setChecked(true);
-				checkbox.getImage().setColor(Color.GRAY);
-				//checkbox.getLabel().setColor(Color.GRAY);
 			}
 			editdialog.getContentTable().top().left().add(checkbox).align(Align.topLeft);
 
@@ -336,6 +325,7 @@ public class VertexGUI extends Module<Pixtigen>{
 				TextButton editbutton = new TextButton("Edit", skin);
 				editbutton.addListener(new ClickListener(){
 					public void clicked(InputEvent event, float x, float y){
+						if(filter.valueMap(materialbox.getSelected()).size() == 0) return;
 						//	System.out.println(materialbox.getSelected());
 						Dialog dialog = new Dialog("Edit Filter", skin){
 							public float getPrefWidth(){
@@ -385,9 +375,7 @@ public class VertexGUI extends Module<Pixtigen>{
 					}
 				});
 				if(filter.valueMap(materialbox.getSelected()).size() == 0){
-					editbutton.setTouchable(Touchable.disabled);
-					editbutton.setColor(Color.GRAY);
-					editbutton.getLabel().setColor(Color.GRAY);
+					editbutton.setDisabled(true);
 				}
 				editdialog.getContentTable().add(editbutton).width(60);
 

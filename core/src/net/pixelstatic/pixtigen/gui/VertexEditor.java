@@ -3,7 +3,7 @@ import net.pixelstatic.pixtigen.Pixtigen;
 import net.pixelstatic.pixtigen.generator.*;
 import net.pixelstatic.pixtigen.generator.VertexObject.PolygonType;
 import net.pixelstatic.pixtigen.util.ValueMap;
-import net.pixelstatic.utils.Hue;
+import net.pixelstatic.utils.graphics.Hue;
 import net.pixelstatic.utils.modules.Module;
 
 import com.badlogic.gdx.Gdx;
