@@ -1,7 +1,6 @@
 package net.pixelstatic.pixtigen.generator;
 
 import net.pixelstatic.pixtigen.generator.VertexObject.PolygonType;
-import net.pixelstatic.pixtigen.util.Value.CrystalValue;
 
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.Pixmap.Blending;
@@ -27,6 +26,7 @@ public class TreeGenerator implements Disposable{
 	private float canvasScale = 1 / 1000f;
 	private boolean autoscale = true;
 	private ObjectMap<Material, Array<Filter>> filters = new ObjectMap<>();
+	private Array<Filter> globalfilters = new Array<Filter>();
 	//private ObjectMap<Material, ObjectMap<FilterType, Boolean>> filters = new ObjectMap<Material, ObjectMap<FilterType, Boolean>>();
 	private float[][] shading;
 
@@ -39,8 +39,9 @@ public class TreeGenerator implements Disposable{
 			for(int y = 0;y < height;y ++){
 				int cy = height - 1 - y;
 				Pixel pixel = materials[x][y];
-				if(pixel.material != null) for(Filter filter : filters.get(pixel.material)){
-					if(filter.type.isApplied() && (filter.enabled || filter.type.alwaysEnabled())){
+				if(pixel.material != null) 
+				for(Filter filter : filters.get(pixel.material)){
+					if(!filter.type.isApplied() && (filter.enabled || filter.type.alwaysEnabled())){
 						shading[x][y] += filter.type.apply(filter, this, pixmap, materials, pixel, x, y, cy, width, height);
 					}
 				}
@@ -79,7 +80,7 @@ public class TreeGenerator implements Disposable{
 			for(int y = 0;y < height;y ++){
 				Pixel pixel = materials[x][y];
 				if(pixel.material != null) for(Filter filter : filters.get(pixel.material)){
-					if( !filter.type.isApplied() && (filter.enabled || filter.type.alwaysEnabled())){
+					if(filter.type.isApplied() && (filter.enabled || filter.type.alwaysEnabled())){
 						filter.type.apply(filter, this, pixmap, materials, pixel, x, y, height - 1 - y, width, height);
 					}
 				}
@@ -164,8 +165,8 @@ public class TreeGenerator implements Disposable{
 				colors[y * width + x] = /*toARGB*/(pixmap.getPixel(x, y));
 			}
 		}
-		float scale = FilterType.crystallize.valueMap(Material.leaves).getFloat("scale");
-		int type = FilterType.crystallize.valueMap(Material.leaves).get("type", CrystalValue.class).getValue().ordinal();
+		////float scale = FilterType.crystallize.valueMap(Material.leaves).getFloat("scale");
+		//int type = FilterType.crystallize.valueMap(Material.leaves).get("type", CrystalValue.class).getValue().ordinal();
 		//crystallization...
 		for(int x = 0;x < width;x ++){
 			for(int cy = 0;cy < height;cy ++){
@@ -174,8 +175,8 @@ public class TreeGenerator implements Disposable{
 				if(pixel.material != Material.leaves) continue;
 
 				//if(pixel.material.type == -1) continue;
-				int color = Patterns.leafPattern(x, y, width, height, colors, type, scale);
-				Color cc = new Color(color);
+				//int color = Patterns.leafPattern(x, y, width, height, colors, type, scale);
+				//Color cc = new Color(color);
 
 				//cc.a = 1f;
 				/*
@@ -187,7 +188,7 @@ public class TreeGenerator implements Disposable{
 					cc.set(pixel.material.getColor().cpy().mul(mscl, mscl, mscl, 1f));
 				}
 				*/
-				pixmap.setColor(cc);
+				//pixmap.setColor(cc);
 				/*if(new Color(pixmap.getPixel(x, y)).a > 0.001f) */pixmap.drawPixel(x, y);
 			}
 		}
@@ -354,6 +355,7 @@ public class TreeGenerator implements Disposable{
 	}
 
 	private void addDefaultFilters(){
+		globalfilters.add(new Filter(FilterType.shading));
 		addFilter(Material.leaves, FilterType.noise);
 		addFilter(Material.leaves, FilterType.shadows);
 		addFilter(Material.leaves, FilterType.outline);
@@ -374,8 +376,16 @@ public class TreeGenerator implements Disposable{
 		return filters.get(material);
 	}
 	
+	public ObjectMap<Material, Array<Filter>> getAllFilters(){
+		return filters;
+	}
+	
+	public void setAllFilters(ObjectMap<Material, Array<Filter>> filters){
+		this.filters = filters;
+	}
+	
 	public boolean isFilterEnabled(Material material, FilterType type){
-		return filters.get(material)
+		return false;//filters.get(material)
 	}
 
 	/**Returns an integer projected to polygon coordinates.**/
@@ -405,7 +415,7 @@ public class TreeGenerator implements Disposable{
 	}
 
 	private Color brighter(Color color, float a){
-		FilterType.shading.change(color, a);
+		globalfilters.get(0).type.change(color, a);
 		return color;
 	}
 

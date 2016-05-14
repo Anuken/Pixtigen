@@ -1,20 +1,20 @@
 package net.pixelstatic.pixtigen.gui;
 
-import net.pixelstatic.pixtigen.generator.FilterType;
+import net.pixelstatic.pixtigen.generator.Filter;
 import net.pixelstatic.pixtigen.generator.Material;
 import net.pixelstatic.pixtigen.generator.VertexObject;
-import net.pixelstatic.pixtigen.util.ValueMap;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.ObjectMap;
 
 public class EditorState{
 	static Json json = new Json();
 	public VertexObject vertexobject;
-	public ObjectMap<FilterType, ObjectMap<Material, ValueMap>> filtervalues = new ObjectMap<FilterType, ObjectMap<Material, ValueMap>>();
+	public ObjectMap<Material, Array<Filter>> filtervalues = new ObjectMap<Material, Array<Filter>>();
 	public ObjectMap<Material, Color> colors = new ObjectMap<Material, Color>();
 	public ObjectMap<String, ObjectMap<String, Boolean>> filters = new ObjectMap<String, ObjectMap<String, Boolean>>();
 

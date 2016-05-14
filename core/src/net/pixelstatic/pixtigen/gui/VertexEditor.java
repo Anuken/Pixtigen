@@ -1,8 +1,8 @@
 package net.pixelstatic.pixtigen.gui;
+
 import net.pixelstatic.pixtigen.Pixtigen;
 import net.pixelstatic.pixtigen.generator.*;
 import net.pixelstatic.pixtigen.generator.VertexObject.PolygonType;
-import net.pixelstatic.pixtigen.util.ValueMap;
 import net.pixelstatic.utils.graphics.Hue;
 import net.pixelstatic.utils.modules.Module;
 
@@ -19,7 +19,6 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ObjectMap;
-
 
 public class VertexEditor extends Module<Pixtigen>{
 	final Color otherVerticeColor = Color.BLUE;
@@ -51,7 +50,7 @@ public class VertexEditor extends Module<Pixtigen>{
 	void updateCanvases(){
 		for(VertexCanvas canvas : canvases)
 			canvas.update(this.selectedCanvas, this, gui);
-	
+
 	}
 
 	void drawTree(){
@@ -75,7 +74,6 @@ public class VertexEditor extends Module<Pixtigen>{
 
 		drawVertices(selectedCanvas, selectedCanvas.vertices(), false);
 		if(selectedCanvas.symmetry && drawing) drawVertices(selectedCanvas, mirror(selectedCanvas.vertices()), true);
-
 
 		shape.set(ShapeType.Line);
 		shape.setColor(Hue.rgb(130, 52, 180));
@@ -167,12 +165,12 @@ public class VertexEditor extends Module<Pixtigen>{
 				min = dist;
 			}
 		}
-		
+
 		return selected;
 	}
 
 	void input(){
-		
+
 		if(vertice != null){
 			vertice.set(Gdx.input.getX() - centerx(), (Gdx.graphics.getHeight() - Gdx.input.getY()) - centery());
 		}
@@ -183,22 +181,22 @@ public class VertexEditor extends Module<Pixtigen>{
 		if(gui.stage.getKeyboardFocus() != null) return;
 		float speed = 6f;
 		float offsetx = 0, offsety = 0;
-		
-/*
-		if(Gdx.input.isKeyJustPressed(Keys.R)){
-			System.out.println("yay");
-			int minvertices = Integer.MAX_VALUE;
-			for(VertexCanvas canvas : canvases)
-				minvertices = Math.min(canvas.list.vertices.size, minvertices);
-			
-			if(minvertices >= 3){
-				tree.setVertexObject(new VertexObject(canvases));
-				tree.generate();
-			}else{
-				gui.showInfo("Each polygon must have at least 3 vertices\nfor the tree to generate!");
-			}
-		}
-		*/
+
+		/*
+				if(Gdx.input.isKeyJustPressed(Keys.R)){
+					System.out.println("yay");
+					int minvertices = Integer.MAX_VALUE;
+					for(VertexCanvas canvas : canvases)
+						minvertices = Math.min(canvas.list.vertices.size, minvertices);
+					
+					if(minvertices >= 3){
+						tree.setVertexObject(new VertexObject(canvases));
+						tree.generate();
+					}else{
+						gui.showInfo("Each polygon must have at least 3 vertices\nfor the tree to generate!");
+					}
+				}
+				*/
 
 		if(Gdx.input.isKeyPressed(Keys.W)) offsety += speed;
 		if(Gdx.input.isKeyPressed(Keys.D)) offsetx += speed;
@@ -213,64 +211,48 @@ public class VertexEditor extends Module<Pixtigen>{
 		}
 		if(Gdx.input.isKeyJustPressed(Keys.SPACE)) drawMode = !drawMode;
 	}
-	
+
 	public void init(){
 		gui = getModule(VertexGUI.class);
 		gui.editor = this;
 		shape = new ShapeRenderer();
 		tree = new TreeGenerator();
-		
+
 		selectedCanvas = new VertexCanvas("leafsegment", 0);
 		selectedCanvas.list.material = Material.leaves;
 		canvases.add(selectedCanvas);
 
 		VertexCanvas trunk = addCanvas("trunk");
 		trunk.list.material = Material.wood;
-		
+
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	void loadState(FileHandle file) throws Exception{
 		EditorState save = EditorState.readState(file);
-		
+
 		//note: this random casting is needed because JSON serializes enums as strings?
-		ObjectMap<String, ObjectMap<String, ValueMap>> fmap = (ObjectMap<String, ObjectMap<String, ValueMap>>)((Object)save.filtervalues);
+		//ObjectMap<String, ObjectMap<String, ValueMap>> fmap = (ObjectMap<String, ObjectMap<String, ValueMap>>)((Object)save.filtervalues);
 		
-		for(FilterType filter : FilterType.values()){
-			for(Material material : Material.values()){
-				ValueMap values = fmap.get(filter.toString()).get(material.toString());
-				
-				for(String key : values.valueNames()){
-					filter.materialValueMap().get(material).add(key, values.get(key));
-				}
-			}
-		}
-		
-		for(Material material : Material.values()){
-			for(FilterType filter : FilterType.values()){
-				tree.setFilter(material, filter, save.filters.get(material.toString()).get(filter.toString()));
-			}
-		}
-		
+		tree.setAllFilters(save.filtervalues);
+
 		ObjectMap<String, Color> map = (ObjectMap<String, Color>)((Object)save.colors);
 		for(Material material : Material.values()){
 			material.color = map.get(material.toString());
 		}
-		
+
 		loadObject(save.vertexobject);
 	}
 
 	void saveState(FileHandle file){
 		EditorState save = new EditorState();
 		
-		for(FilterType filter : FilterType.values())
-			save.filtervalues.put(filter, filter.materialValueMap());
+		save.filtervalues = tree.getAllFilters();
 
 		for(Material material : Material.values()){
 			save.colors.put(material, material.getColor());
-			System.out.println(material.getColor());
 		}
-		
+
 		for(Material material : Material.values()){
 			save.filters.put(material.toString(), new ObjectMap<String, Boolean>());
 			for(FilterType filter : FilterType.values()){
@@ -279,7 +261,7 @@ public class VertexEditor extends Module<Pixtigen>{
 		}
 
 		save.vertexobject = new VertexObject(canvases);
-		
+
 		EditorState.writeState(save, file);
 	}
 
