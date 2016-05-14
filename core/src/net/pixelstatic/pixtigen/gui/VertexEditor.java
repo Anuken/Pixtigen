@@ -236,7 +236,7 @@ public class VertexEditor extends Module<Pixtigen>{
 		//note: this random casting is needed because JSON serializes enums as strings?
 		ObjectMap<String, ObjectMap<String, ValueMap>> fmap = (ObjectMap<String, ObjectMap<String, ValueMap>>)((Object)save.filtervalues);
 		
-		for(Filter filter : Filter.values()){
+		for(FilterType filter : FilterType.values()){
 			for(Material material : Material.values()){
 				ValueMap values = fmap.get(filter.toString()).get(material.toString());
 				
@@ -247,7 +247,7 @@ public class VertexEditor extends Module<Pixtigen>{
 		}
 		
 		for(Material material : Material.values()){
-			for(Filter filter : Filter.values()){
+			for(FilterType filter : FilterType.values()){
 				tree.setFilter(material, filter, save.filters.get(material.toString()).get(filter.toString()));
 			}
 		}
@@ -263,7 +263,7 @@ public class VertexEditor extends Module<Pixtigen>{
 	void saveState(FileHandle file){
 		EditorState save = new EditorState();
 		
-		for(Filter filter : Filter.values())
+		for(FilterType filter : FilterType.values())
 			save.filtervalues.put(filter, filter.materialValueMap());
 
 		for(Material material : Material.values()){
@@ -273,7 +273,7 @@ public class VertexEditor extends Module<Pixtigen>{
 		
 		for(Material material : Material.values()){
 			save.filters.put(material.toString(), new ObjectMap<String, Boolean>());
-			for(Filter filter : Filter.values()){
+			for(FilterType filter : FilterType.values()){
 				save.filters.get(material.toString()).put(filter.toString(), tree.isFilterEnabled(material, filter));
 			}
 		}

@@ -1,8 +1,7 @@
 package net.pixelstatic.pixtigen.gui;
 
 import net.pixelstatic.pixtigen.Pixtigen;
-import net.pixelstatic.pixtigen.generator.Filter;
-import net.pixelstatic.pixtigen.generator.Material;
+import net.pixelstatic.pixtigen.generator.*;
 import net.pixelstatic.pixtigen.generator.VertexObject.PolygonType;
 import net.pixelstatic.utils.modules.Module;
 import net.pixelstatic.utils.scene2D.ColorPicker;
@@ -52,10 +51,10 @@ public class VertexGUI extends Module<Pixtigen>{
 		symmetry.setChecked(editor.selectedCanvas.symmetry);
 		overwrite.setChecked(drawMode);
 		overwrite.setText(drawMode ? "Draw Mode" : "Edit Mode");
-		clear.setDisabled(!drawMode);
-		symmetry.setDisabled(!drawMode);
-		delete.setDisabled(!drawMode);
-		smooth.setDisabled(!drawMode);
+		clear.setDisabled( !drawMode);
+		symmetry.setDisabled( !drawMode);
+		delete.setDisabled( !drawMode);
+		smooth.setDisabled( !drawMode);
 	}
 
 	public void init(){
@@ -271,8 +270,8 @@ public class VertexGUI extends Module<Pixtigen>{
 		materialbox.addListener(new ChangeListener(){
 			public void changed(ChangeEvent event, Actor actor){
 				((ColorPicker)editdialog.getContentTable().findActor("colorpicker")).setColor(materialbox.getSelected().color);
-				Filter[] filters = Filter.values();
-				for(Filter filter : filters){
+				FilterType[] filters = FilterType.values();
+				for(FilterType filter : filters){
 					((CheckBox)editdialog.getContentTable().findActor(filter.name() + ("check"))).setChecked(editor.tree.isFilterEnabled(materialbox.getSelected(), filter));
 				}
 				//editor.tree.setFilter(materialbox.getSelected(), filter, checkbox.isChecked());
@@ -305,35 +304,35 @@ public class VertexGUI extends Module<Pixtigen>{
 		Label filterlabel = new Label("Filters:", skin);
 		editdialog.getContentTable().top().left().add(filterlabel).align(Align.topLeft).row();;
 
-		for(Filter filter : Filter.values()){
-			CheckBox checkbox = new CheckBox(filter.getName(), skin);
-			checkbox.setChecked(editor.tree.isFilterEnabled(materialbox.getSelected(), filter));
-			checkbox.setName(filter.name() + "check");
+		for(Filter filter : editor.tree.getFilters(materialbox.getSelected())){
+			CheckBox checkbox = new CheckBox(filter.type.getName(), skin);
+			checkbox.setChecked(filter.enabled);
+			checkbox.setName(filter.type.name() + "check");
 			checkbox.addListener(new ChangeListener(){
 				public void changed(ChangeEvent event, Actor actor){
-					editor.tree.setFilter(materialbox.getSelected(), filter, checkbox.isChecked());
+					filter.enabled = checkbox.isChecked();
+					//editor.tree.setFilter(materialbox.getSelected(), filter, checkbox.isChecked());
 				}
 			});
-			if(filter.alwaysEnabled()){
+			if(filter.type.alwaysEnabled()){
 				checkbox.setDisabled(true);
 				checkbox.setChecked(true);
 			}
 			editdialog.getContentTable().top().left().add(checkbox).align(Align.topLeft);
 
-			if(filter.editable()){
+			if(filter.type.editable()){
 
 				TextButton editbutton = new TextButton("Edit", skin);
 				editbutton.addListener(new ClickListener(){
 					public void clicked(InputEvent event, float x, float y){
-						if(filter.valueMap(materialbox.getSelected()).size() == 0) return;
-						//	System.out.println(materialbox.getSelected());
+						if(filter.values.size() == 0) return;
 						Dialog dialog = new Dialog("Edit Filter", skin){
 							public float getPrefWidth(){
 								return 250f;
 							}
 
 							public float getPrefHeight(){
-								return filter.valueMap(materialbox.getSelected()).size() * 80;
+								return filter.values.size() * 80;
 							}
 						};
 						TextButton editclosebutton = new TextButton("x", skin);
@@ -345,10 +344,10 @@ public class VertexGUI extends Module<Pixtigen>{
 
 						dialog.getTitleTable().add(editclosebutton).height(17);
 						dialog.key(Keys.ENTER, true).key(Keys.ESCAPE, false);
-						com.badlogic.gdx.utils.ObjectMap.Keys<String> keys = filter.valueNames(materialbox.getSelected());
+						com.badlogic.gdx.utils.ObjectMap.Keys<String> keys = filter.values.valueNames();
 
 						for(String string : keys){
-							net.pixelstatic.pixtigen.util.Value<?> value = filter.valueMap(materialbox.getSelected()).get(string);
+							net.pixelstatic.pixtigen.util.Value<?> value = filter.values.get(string);
 							Label valuelabel = new Label(string, skin);
 							dialog.getContentTable().top().left().add(valuelabel).align(Align.topLeft).row();;
 							Actor actor = value.getActor(skin);
@@ -356,7 +355,6 @@ public class VertexGUI extends Module<Pixtigen>{
 								public void changed(ChangeEvent event, Actor actor){
 									value.onChange(actor);
 									valuelabel.setText(string + ": " + value);
-									//		System.out.println("Editing value " + string + " for material " + materialbox.getSelected() + " and filter " + filter);
 								}
 							});
 							actor.fire(new ChangeListener.ChangeEvent());
@@ -374,7 +372,7 @@ public class VertexGUI extends Module<Pixtigen>{
 						dialog.show(stage);
 					}
 				});
-				if(filter.valueMap(materialbox.getSelected()).size() == 0){
+				if(filter.values.size() == 0){
 					editbutton.setDisabled(true);
 				}
 				editdialog.getContentTable().add(editbutton).width(60);
