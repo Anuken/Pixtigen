@@ -12,4 +12,9 @@ public class Filter{
 		values = new ValueMap();
 		type.initValues(values);
 	}
+	
+	protected Filter(){
+		type = null;
+		values = null;
+	}
 }

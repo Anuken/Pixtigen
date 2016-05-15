@@ -232,9 +232,15 @@ public class VertexEditor extends Module<Pixtigen>{
 		EditorState save = EditorState.readState(file);
 
 		//note: this random casting is needed because JSON serializes enums as strings?
-		//ObjectMap<String, ObjectMap<String, ValueMap>> fmap = (ObjectMap<String, ObjectMap<String, ValueMap>>)((Object)save.filtervalues);
 		
-		tree.setAllFilters(save.filtervalues);
+		ObjectMap<String, Array<Filter>> fmap = (ObjectMap<String, Array<Filter>>)(Object)save.filtervalues;
+		ObjectMap<Material, Array<Filter>> filters = new ObjectMap<>();
+		
+		for(String string : fmap.keys()){
+			filters.put(Material.valueOf(string), fmap.get(string));
+		}
+		
+		tree.setAllFilters(filters);
 
 		ObjectMap<String, Color> map = (ObjectMap<String, Color>)((Object)save.colors);
 		for(Material material : Material.values()){
@@ -251,13 +257,6 @@ public class VertexEditor extends Module<Pixtigen>{
 
 		for(Material material : Material.values()){
 			save.colors.put(material, material.getColor());
-		}
-
-		for(Material material : Material.values()){
-			save.filters.put(material.toString(), new ObjectMap<String, Boolean>());
-			for(FilterType filter : FilterType.values()){
-				save.filters.get(material.toString()).put(filter.toString(), tree.isFilterEnabled(material, filter));
-			}
 		}
 
 		save.vertexobject = new VertexObject(canvases);

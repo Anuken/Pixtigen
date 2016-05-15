@@ -32,7 +32,6 @@ public class TreeGenerator implements Disposable{
 
 	private void processPolygons(){
 		drawMaterials();
-
 		clearShading();
 
 		for(int x = 0;x < width;x ++){
@@ -191,52 +190,6 @@ public class TreeGenerator implements Disposable{
 		}
 	}
 
-	private void generateShadingPatterns(){
-		//add brightness, leaf patterns
-		for(int x = 0;x < width;x ++){
-			for(int cy = 0;cy < height;cy ++){
-				int y = height - 1 - cy;
-				Pixel pixel = materials[x][y];
-				if(pixel.polygon == null) continue;
-				if(pixel.polygon.material() == Material.leaves){
-					generateLeafPattern(x, y, cy, pixel);
-				}else if(pixel.polygon.material() == Material.wood){
-					generateLogPattern(x, y, cy, pixel);
-				}
-			}
-		}
-	}
-
-	private void generateLogPattern(int x, int y, int cy, Pixel pixel){
-		Color color = new Color(pixmap.getPixel(x, cy));
-
-		float m = 0f;
-		m = (Patterns.nMod(x, y, 0.2f));
-		float dist = pixel.polygon.distance(project(x - width / 2), project(y));
-		m += dist * 10f / (pixel.polygon.dimensions() * 3.4f);
-		if(m > 1.4f) m /= 2f;
-		m = round(m, 0.4f);
-		m += 1f;
-		color.mul(m, m, m, 1f);
-
-		pixmap.drawPixel(x, cy, Color.rgba8888(color));
-	}
-
-	private void generateLeafPattern(int x, int y, int cy, Pixel pixel){
-		float round = 0.1f;
-		float gscl = -0.1f;
-
-		float selflightscale = 0.4f; //default is 0.7f
-		float globallightscale = 0.8f; //default is 0.6f;
-
-		float dist = pixel.polygon.height() / 3f + gscl + selflightscale * (((1.5f) - pixel.polygon.lightVertice.dst(project(x - width / 2), project(y))));
-		float lightdist = gscl + globallightscale * ((1f - lightsource.dst(project(x - width / 2), project(y))));
-
-		float scl = Patterns.leaves(x + (int)(pixel.polygon.center.x / scale), y + (int)(pixel.polygon.center.y / scale)) + dist + lightdist + Patterns.noise(x, y, 4f, 0.2f) + Patterns.mod(x, y, 0.07f);
-		pixmap.drawPixel(x, cy, Color.rgba8888(brighter(new Color(pixmap.getPixel(x, cy)), round * (int)(((scl * 0.5f) / round)))));
-
-	}
-
 	private void loadPolygons(){
 		object.alignBottom();
 		object.alignSides();
@@ -279,14 +232,7 @@ public class TreeGenerator implements Disposable{
 		texture = new Texture(pixmap);
 		shading = new float[width][height];
 		vertexgenerator = new VertexGenerator();
-		/*
-		for(Material material : Material.values()){
-			filters.put(material, new ObjectMap<FilterType, Boolean>());
-			for(FilterType filter : FilterType.values()){
-				this.filters.get(material).put(filter, false);
-			}
-		}
-		*/
+
 		for(Material material : Material.values())
 			filters.put(material, new Array<Filter>());
 		addDefaultFilters();
@@ -360,7 +306,6 @@ public class TreeGenerator implements Disposable{
 		addFilter(Material.leaves, FilterType.light);
 		addFilter(Material.leaves, FilterType.lines);
 		addFilter(Material.leaves, FilterType.round);
-		addFilter(Material.leaves, FilterType.crystallize);
 		
 		addFilter(Material.wood, FilterType.outline);
 		addFilter(Material.wood, FilterType.shadows);
