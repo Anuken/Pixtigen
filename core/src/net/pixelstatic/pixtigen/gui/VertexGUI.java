@@ -1,8 +1,7 @@
 package net.pixelstatic.pixtigen.gui;
 
 import net.pixelstatic.pixtigen.Pixtigen;
-import net.pixelstatic.pixtigen.generator.Filter;
-import net.pixelstatic.pixtigen.generator.Material;
+import net.pixelstatic.pixtigen.generator.*;
 import net.pixelstatic.pixtigen.generator.VertexObject.PolygonType;
 import net.pixelstatic.utils.modules.Module;
 import net.pixelstatic.utils.scene2D.ColorPicker;
@@ -27,7 +26,7 @@ public class VertexGUI extends Module<Pixtigen>{
 	Skin skin;
 	Stage stage;
 	Table table;
-	Dialog infodialog;
+	Dialog infodialog, addfilterdialog;
 	TextButton symmetry, overwrite, add, clear, delete, smooth, resetcolor, addfilter;
 	SelectBox<Material> box;
 	SelectBox<PolygonType> typebox;
@@ -80,6 +79,21 @@ public class VertexGUI extends Module<Pixtigen>{
 		table.setFillParent(true);
 		stage.addActor(table);
 		float width = uiwidth, height = uiheight;
+		SelectBox<FilterType> filterbox = new SelectBox<FilterType>(skin);
+
+		addfilterdialog = new Dialog("Add Filter", skin){
+			public void result(Object object){
+				if((Boolean)object){
+					editor.tree.getFilters(materialbox.getSelected()).add(new Filter(filterbox.getSelected()));
+					updateFilterList(editdialog);
+				}
+			}
+		};
+		addfilterdialog.text("Type: ").row();
+		filterbox.setItems(FilterType.values());
+		addfilterdialog.getContentTable().add(filterbox);
+
+		addfilterdialog.button("    Add    ", true).button("  Cancel  ", false);
 
 		field = new TextField("canvas", skin);
 		field.setSize(width, height);
@@ -258,17 +272,17 @@ public class VertexGUI extends Module<Pixtigen>{
 		//	editdialog.setResizable(true);
 
 		materiallabel = new Label("Material:", skin);
-	
+
 		materialbox = new SelectBox<Material>(skin);
 		materialbox.setItems(Material.values());
 		materialbox.addListener(new ChangeListener(){
 			public void changed(ChangeEvent event, Actor actor){
 				((ColorPicker)editdialog.getContentTable().findActor("colorpicker")).setColor(materialbox.getSelected().color);
 				updateFilterList(editdialog);
-			//	editdialog.getContentTable().clear();
-				
+				//	editdialog.getContentTable().clear();
+
 				//FilterType[] filters = FilterType.values();
-			//	for(FilterType filter : filters){
+				//	for(FilterType filter : filters){
 				//	((CheckBox)editdialog.getContentTable().findActor(filter.name() + ("check"))).setChecked(editor.tree.isFilterEnabled(materialbox.getSelected(), filter));
 				//}
 				//editor.tree.setFilter(materialbox.getSelected(), filter, checkbox.isChecked());
@@ -276,7 +290,7 @@ public class VertexGUI extends Module<Pixtigen>{
 		});
 
 		colorlabel = new Label("Color:", skin);
-	
+
 		picker = new ColorPicker(skin);
 		picker.setName("colorpicker");
 		picker.setColor(materialbox.getSelected().color);
@@ -285,7 +299,7 @@ public class VertexGUI extends Module<Pixtigen>{
 				materialbox.getSelected().color = picker.getColor();
 			}
 		});
-	
+
 		resetcolor = new TextButton("Reset Color", skin);
 		resetcolor.addListener(new ClickListener(){
 			public void clicked(InputEvent event, float x, float y){
@@ -293,13 +307,17 @@ public class VertexGUI extends Module<Pixtigen>{
 				picker.setColor(materialbox.getSelected().color);
 			}
 		});
-		
+
 		filterlabel = new Label("Filters:", skin);
-		
+
 		addfilter = new TextButton("Add Filter", skin);
-			
+		addfilter.addListener(new ClickListener(){
+			public void clicked(InputEvent event, float x, float y){
+				addfilterdialog.show(stage);
+			}
+		});
+
 		updateFilterList(editdialog);
-	
 
 		TextButton advancedbutton = new TextButton("Filters/Color", skin);
 		advancedbutton.addListener(new ClickListener(){
@@ -381,7 +399,7 @@ public class VertexGUI extends Module<Pixtigen>{
 
 		editor.selectedCanvas.updateBoxes(this);
 	}
-	
+
 	void updateFilterList(FilterDialog dialog){
 		dialog.getContentTable().clear();
 		editdialog.getContentTable().top().left().add(materiallabel).align(Align.topLeft).row();
@@ -391,7 +409,7 @@ public class VertexGUI extends Module<Pixtigen>{
 		editdialog.getContentTable().add(resetcolor).row();
 		editdialog.getContentTable().top().left().add(filterlabel).align(Align.topLeft).row();;
 		dialog.setWindowHeight(300 + 30 + 30 * editor.tree.getFilters(materialbox.getSelected()).size);
-		
+
 		for(Filter filter : editor.tree.getFilters(materialbox.getSelected())){
 			CheckBox checkbox = new CheckBox(filter.type.getName(), skin);
 			checkbox.setChecked(filter.enabled);
@@ -408,69 +426,78 @@ public class VertexGUI extends Module<Pixtigen>{
 			}
 			editdialog.getContentTable().top().left().add(checkbox).align(Align.topLeft);
 
-			if(filter.type.editable()){
-
-				TextButton editbutton = new TextButton("Edit", skin);
-				editbutton.setName(filter +"filtereditbutton");
-				editbutton.addListener(new ClickListener(){
-					public void clicked(InputEvent event, float x, float y){
-						if(filter.values.size() == 0) return;
-						Dialog dialog = new Dialog("Edit Filter", skin){
-							public float getPrefWidth(){
-								return 250f;
-							}
-
-							public float getPrefHeight(){
-								return filter.values.size() * 80;
-							}
-						};
-						TextButton editclosebutton = new TextButton("x", skin);
-						editclosebutton.addListener(new ClickListener(){
-							public void clicked(InputEvent event, float x, float y){
-								dialog.hide();
-							}
-						});
-
-						dialog.getTitleTable().add(editclosebutton).height(17);
-						dialog.key(Keys.ENTER, true).key(Keys.ESCAPE, false);
-						com.badlogic.gdx.utils.ObjectMap.Keys<String> keys = filter.values.valueNames();
-
-						for(String string : keys){
-							net.pixelstatic.pixtigen.util.Value<?> value = filter.values.get(string);
-							Label valuelabel = new Label(string, skin);
-							dialog.getContentTable().top().left().add(valuelabel).align(Align.topLeft).row();;
-							Actor actor = value.getActor(skin);
-							actor.addListener(new ChangeListener(){
-								public void changed(ChangeEvent event, Actor actor){
-									value.onChange(actor);
-									valuelabel.setText(string + ": " + value);
-								}
-							});
-							actor.fire(new ChangeListener.ChangeEvent());
-							dialog.getContentTable().top().left().add(actor).align(Align.topLeft);
-							TextButton resetbutton = new TextButton("Reset", skin);
-							resetbutton.addListener(new ClickListener(){
-								public void clicked(InputEvent event, float x, float y){
-									value.reset(actor);
-									actor.fire(new ChangeListener.ChangeEvent());
-								}
-							});
-							dialog.getContentTable().add(resetbutton).row();
+			TextButton editbutton = new TextButton("Edit", skin);
+			editbutton.setName(filter + "filtereditbutton");
+			editbutton.addListener(new ClickListener(){
+				public void clicked(InputEvent event, float x, float y){
+					if(filter.values.size() == 0) return;
+					Dialog dialog = new Dialog("Edit Filter", skin){
+						public float getPrefWidth(){
+							return 250f;
 						}
 
-						dialog.show(stage);
-					}
-				});
-				if(filter.values.size() == 0){
-					editbutton.setDisabled(true);
-				}
-				editdialog.getContentTable().add(editbutton).width(60);
+						public float getPrefHeight(){
+							return filter.values.size() * 80;
+						}
+					};
+					TextButton editclosebutton = new TextButton("x", skin);
+					editclosebutton.addListener(new ClickListener(){
+						public void clicked(InputEvent event, float x, float y){
+							dialog.hide();
+						}
+					});
 
+					dialog.getTitleTable().add(editclosebutton).height(17);
+					dialog.key(Keys.ENTER, true).key(Keys.ESCAPE, false);
+					com.badlogic.gdx.utils.ObjectMap.Keys<String> keys = filter.values.valueNames();
+
+					for(String string : keys){
+						net.pixelstatic.pixtigen.util.Value<?> value = filter.values.get(string);
+						Label valuelabel = new Label(string, skin);
+						dialog.getContentTable().top().left().add(valuelabel).align(Align.topLeft).row();;
+						Actor actor = value.getActor(skin);
+						actor.addListener(new ChangeListener(){
+							public void changed(ChangeEvent event, Actor actor){
+								value.onChange(actor);
+								valuelabel.setText(string + ": " + value);
+							}
+						});
+						actor.fire(new ChangeListener.ChangeEvent());
+						dialog.getContentTable().top().left().add(actor).align(Align.topLeft);
+						TextButton resetbutton = new TextButton("Reset", skin);
+						resetbutton.addListener(new ClickListener(){
+							public void clicked(InputEvent event, float x, float y){
+								value.reset(actor);
+								actor.fire(new ChangeListener.ChangeEvent());
+							}
+						});
+						dialog.getContentTable().add(resetbutton).row();
+					}
+
+					dialog.show(stage);
+				}
+			});
+			if(filter.values.size() == 0){
+				editbutton.setDisabled(true);
 			}
+			editdialog.getContentTable().add(editbutton).width(35);
+			
+			TextButton removebutton = new TextButton("Remove", skin);
+			removebutton.setName(filter + "filterremovebutton");
+			removebutton.addListener(new ClickListener(){
+				public void clicked(InputEvent event, float x, float y){
+					editor.tree.getFilters(materialbox.getSelected()).removeValue(filter, true);
+					updateFilterList(dialog);
+				}
+			});
+			
+			editdialog.getContentTable().add(removebutton).width(65);
+			
+		
 			editdialog.getContentTable().row();
 		}
 		editdialog.getContentTable().add(addfilter).align(Align.topLeft).row();
-		
+
 	}
 
 	void add(Actor actor){
