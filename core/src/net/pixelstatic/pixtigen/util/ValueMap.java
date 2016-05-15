@@ -14,6 +14,10 @@ public class ValueMap{
 		return values.get(name);
 	}
 	
+	public Object getValue(String name){
+		return values.get(name).getValue();
+	}
+	
 	public <T> T get(String name, Class<T> c){
 		return c.cast(values.get(name));
 	}
