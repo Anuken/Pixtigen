@@ -28,6 +28,8 @@ public class VertexGUI extends Module<Pixtigen>{
 	Table table;
 	Dialog infodialog, addfilterdialog;
 	TextButton symmetry, overwrite, add, clear, delete, smooth, resetcolor, addfilter;
+	ScrollPane pane;
+	List<VertexCanvas> canvaslist;
 	SelectBox<Material> box;
 	SelectBox<PolygonType> typebox;
 	Texture colorbox;
@@ -49,7 +51,8 @@ public class VertexGUI extends Module<Pixtigen>{
 
 	public void updateButtons(){
 		boolean drawMode = editor.drawMode;
-		add.setPosition(0, Gdx.graphics.getHeight() - editor.canvases.size * 30 - 30);
+		add.setPosition(0, Gdx.graphics.getHeight() - pane.getHeight() - 30);
+		pane.setPosition(0, Gdx.graphics.getHeight() - pane.getHeight());
 		symmetry.setChecked(editor.selectedCanvas.symmetry);
 		overwrite.setChecked(drawMode);
 		overwrite.setText(drawMode ? "Draw Mode" : "Edit Mode");
@@ -65,6 +68,10 @@ public class VertexGUI extends Module<Pixtigen>{
 		plex.addProcessor(new VertexInput(getModule(VertexEditor.class)));
 		plex.addProcessor(stage);
 		Gdx.input.setInputProcessor(plex);
+		
+		for(int i = 0; i < 100; i ++){
+			
+		}
 	}
 
 	public VertexGUI(){
@@ -79,6 +86,22 @@ public class VertexGUI extends Module<Pixtigen>{
 		table.setFillParent(true);
 		stage.addActor(table);
 		float width = uiwidth, height = uiheight;
+		canvaslist = new List<VertexCanvas>(skin);
+		canvaslist.getStyle().background = skin.newDrawable("dark");
+		canvaslist.addListener(new ChangeListener(){
+			@Override
+			public void changed(ChangeEvent event, Actor actor){
+				editor.selectedCanvas = canvaslist.getSelected();
+				if(box != null)editor.updateBoxes();
+			}
+		});
+		updateCanvasList();
+		
+		pane = new ScrollPane(canvaslist);
+		pane.setOverscroll(false, false);
+		pane.setFadeScrollBars(false);
+		table.addActor(pane);
+		
 		SelectBox<FilterType> filterbox = new SelectBox<FilterType>(skin);
 
 		addfilterdialog = new Dialog("Add Filter", skin){
@@ -102,7 +125,7 @@ public class VertexGUI extends Module<Pixtigen>{
 			@Override
 			public void keyTyped(TextField textField, char c){
 				editor.selectedCanvas.name = field.getText();
-				editor.selectedCanvas.button.setText(editor.selectedCanvas.name);
+			//	editor.selectedCanvas.button.setText(editor.selectedCanvas.name);
 			}
 		});
 		table.top().right();
@@ -250,7 +273,7 @@ public class VertexGUI extends Module<Pixtigen>{
 
 		add = new TextButton("New Canvas", skin);
 		add.align(Align.topLeft);
-		add.setSize(100, 30);
+		add.setSize(pane.getWidth(), 30);
 		add.addListener(new ClickListener(){
 			public void clicked(InputEvent event, float x, float y){
 				//	addCanvas("canvas" + (editor.canvases.size + 1));
@@ -397,7 +420,7 @@ public class VertexGUI extends Module<Pixtigen>{
 
 		infodialog = new Dialog("Info", skin, "dialog").text("").button("Ok", true).key(Keys.ENTER, true).key(Keys.ESCAPE, false);
 
-		editor.selectedCanvas.updateBoxes(this);
+		editor.updateBoxes();
 	}
 
 	void updateFilterList(FilterDialog dialog){
@@ -497,7 +520,7 @@ public class VertexGUI extends Module<Pixtigen>{
 			editdialog.getContentTable().row();
 		}
 		editdialog.getContentTable().add(addfilter).align(Align.topLeft).row();
-
+		
 	}
 
 	void add(Actor actor){
@@ -515,6 +538,10 @@ public class VertexGUI extends Module<Pixtigen>{
 	public void showInfo(String info){
 		((Label)infodialog.getContentTable().getChildren().get(0)).setText(info);
 		infodialog.show(stage);
+	}
+	
+	void updateCanvasList(){
+		canvaslist.setItems(editor.canvases);
 	}
 
 	public void resize(int width, int height){

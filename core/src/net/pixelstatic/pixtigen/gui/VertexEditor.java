@@ -38,19 +38,12 @@ public class VertexEditor extends Module<Pixtigen>{
 	@Override
 	public void update(){
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-		updateCanvases();
 		input();
 		shape.begin(ShapeType.Line);
 		draw();
 		shape.end();
 		drawTree();
 		ActorAlign.updateAll();
-	}
-
-	void updateCanvases(){
-		for(VertexCanvas canvas : canvases)
-			canvas.update(this.selectedCanvas, this, gui);
-
 	}
 
 	void drawTree(){
@@ -224,7 +217,6 @@ public class VertexEditor extends Module<Pixtigen>{
 
 		VertexCanvas trunk = addCanvas("trunk");
 		trunk.list.material = Material.wood;
-
 	}
 
 	@SuppressWarnings("unchecked")
@@ -270,8 +262,6 @@ public class VertexEditor extends Module<Pixtigen>{
 	}
 
 	void loadObject(VertexObject object){
-		for(VertexCanvas canvas : canvases)
-			canvas.delete();
 		canvases.clear();
 		for(String string : object.lists.keys()){
 			VertexCanvas canvas = addCanvas(string);
@@ -280,14 +270,19 @@ public class VertexEditor extends Module<Pixtigen>{
 			canvas.list.type = object.lists.get(string).type;
 		}
 		selectedCanvas = canvases.first();
-		selectedCanvas.updateBoxes(gui);
+		updateBoxes();
+	}
+	
+	public void updateBoxes(){
+		gui.field.setText(selectedCanvas.name);
+		gui.box.setSelected(selectedCanvas.list.material);
+		gui.typebox.setSelected(selectedCanvas.list.type);
 	}
 
 	void fixCanvases(){
 		for(int i = 0;i < canvases.size;i ++){
 			VertexCanvas canvas = canvases.get(i);
 			canvas.index = i;
-			canvas.update(canvas, this, gui);
 		}
 	}
 

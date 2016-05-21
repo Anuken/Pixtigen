@@ -11,6 +11,13 @@ colorbar
   orig: 100, 20
   offset: 0, 0
   index: -1
+dark
+  rotate: false
+  xy: 171, 40
+  size: 1, 1
+  orig: 1, 1
+  offset: 0, 0
+  index: -1
 check-off
   rotate: false
   xy: 42, 11
