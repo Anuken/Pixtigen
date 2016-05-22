@@ -92,7 +92,7 @@ public class VertexGUI extends Module<Pixtigen>{
 			@Override
 			public void changed(ChangeEvent event, Actor actor){
 				editor.selectedCanvas = canvaslist.getSelected();
-				if(box != null)editor.updateBoxes();
+				if(box != null)updateCanvasInfo();
 			}
 		});
 		updateCanvasList();
@@ -420,7 +420,7 @@ public class VertexGUI extends Module<Pixtigen>{
 
 		infodialog = new Dialog("Info", skin, "dialog").text("").button("Ok", true).key(Keys.ENTER, true).key(Keys.ESCAPE, false);
 
-		editor.updateBoxes();
+		updateCanvasInfo();
 	}
 
 	void updateFilterList(FilterDialog dialog){
@@ -533,6 +533,13 @@ public class VertexGUI extends Module<Pixtigen>{
 		table.row().top().right();
 		table.add(label).align(Align.center);
 		return label;
+	}
+	
+	public void updateCanvasInfo(){
+		field.setText(editor.selectedCanvas.name);
+		box.setSelected(editor.selectedCanvas.list.material);
+		typebox.setSelected(editor.selectedCanvas.list.type);
+		canvaslist.setSelected(editor.selectedCanvas);
 	}
 
 	public void showInfo(String info){

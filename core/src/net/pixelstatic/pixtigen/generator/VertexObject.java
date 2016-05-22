@@ -78,6 +78,7 @@ public class VertexObject{
 		for(VertexList poly : lists.values())
 			for(Vector2 vertice : poly.vertices)
 				min = Math.min(vertice.y, min);
+				//if(Math.abs(vertice.y) > min) min = vertice.y;
 		for(VertexList poly : lists.values())
 			for(Vector2 vertice : poly.vertices)
 				vertice.y -= min; 

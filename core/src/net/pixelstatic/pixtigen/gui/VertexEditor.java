@@ -38,7 +38,7 @@ public class VertexEditor extends Module<Pixtigen>{
 
 	@Override
 	public void update(){
-		translateCanvas(-1);
+		translateCanvas();
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 		input();
 		drawCenter();
@@ -48,11 +48,13 @@ public class VertexEditor extends Module<Pixtigen>{
 		shape.end();
 		drawTree();
 		ActorAlign.updateAll();
-		translateCanvas(1);
 	}
-	
-	void translateCanvas(int s){
-		if(mouseCanvas != null) mouseCanvas.list.translate(s*(lmousex - Gdx.input.getX()), s*(lmousey - Gdx.graphics.getHeight() + Gdx.input.getY()));
+
+	void translateCanvas(){
+		if(mouseCanvas != null) mouseCanvas.list.translate(Gdx.input.getX() - lmousex, Gdx.graphics.getHeight() - Gdx.input.getY() - lmousey);
+
+		lmousex = Gdx.input.getX();
+		lmousey = Gdx.graphics.getHeight() - Gdx.input.getY();
 
 	}
 
@@ -62,10 +64,14 @@ public class VertexEditor extends Module<Pixtigen>{
 
 		for(VertexCanvas canvas : canvases){
 			canvas.updateSprite();
+			canvas.polygon.sprite().translate(offsetx, offsety);
 			if(canvas != selectedCanvas) canvas.polygon.draw(gui.polybatch);
+			canvas.polygon.sprite().translate( -offsetx, -offsety);
 		}
 
+		selectedCanvas.polygon.sprite().translate(offsetx, offsety);
 		if( !drawing) selectedCanvas.polygon.draw(gui.polybatch);
+		selectedCanvas.polygon.sprite().translate(offsetx, offsety);
 		gui.polybatch.end();
 	}
 
@@ -200,12 +206,11 @@ public class VertexEditor extends Module<Pixtigen>{
 		if(Gdx.input.isKeyPressed(Keys.S)) offsety -= speed;
 		if(Gdx.input.isKeyPressed(Keys.A)) offsetx -= speed;
 
-		if( !Gdx.input.isKeyPressed(VertexInput.alt_key)){
-			this.offsetx -= offsetx;
-			this.offsety -= offsety;
-		}else{
-			selectedCanvas.list.translate(offsetx, offsety);
-		}
+		this.offsetx -= offsetx;
+		this.offsety -= offsety;
+		
+		lmousex -= offsetx;
+		lmousey -= offsety;
 		if(Gdx.input.isKeyJustPressed(Keys.SPACE)) drawMode = !drawMode;
 	}
 
@@ -278,14 +283,9 @@ public class VertexEditor extends Module<Pixtigen>{
 		selectedCanvas = canvases.first();
 		gui.updateCanvasList();
 		gui.canvaslist.setSelectedIndex(0);
-		updateBoxes();
+		gui.updateCanvasInfo();
 	}
 
-	public void updateBoxes(){
-		gui.field.setText(selectedCanvas.name);
-		gui.box.setSelected(selectedCanvas.list.material);
-		gui.typebox.setSelected(selectedCanvas.list.type);
-	}
 
 	void fixCanvases(){
 		for(int i = 0;i < canvases.size;i ++){

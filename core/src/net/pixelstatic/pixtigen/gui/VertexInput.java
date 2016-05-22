@@ -71,13 +71,12 @@ public class VertexInput implements InputProcessor{
 				editor.vertice = selected;
 			}
 			if(selected == null){
-				Vector2 mouse = new Vector2(screenX - Gdx.graphics.getWidth()/2, (Gdx.graphics.getHeight() - screenY) - Gdx.graphics.getHeight()/2);
+				Vector2 mouse = new Vector2(screenX - Gdx.graphics.getWidth()/2 - editor.offsetx, (Gdx.graphics.getHeight() - screenY) - Gdx.graphics.getHeight()/2 - editor.offsety);
 				for(VertexCanvas canvas : editor.canvases){
 					if(Intersector.isPointInPolygon(canvas.list.vertices, mouse)){
 						editor.mouseCanvas = canvas;
 						editor.selectedCanvas = canvas;
-						editor.lmousex = screenX;
-						editor.lmousey = Gdx.graphics.getHeight() - screenY;
+						editor.gui.updateCanvasInfo();
 						break;
 					}
 				}
@@ -96,7 +95,6 @@ public class VertexInput implements InputProcessor{
 	public boolean touchUp(int screenX, int screenY, int pointer, int button){
 		if(button == Buttons.LEFT){
 			editor.vertice = null;
-			if(editor.mouseCanvas != null) editor.translateCanvas(-1);
 			editor.mouseCanvas = null;
 		}
 		return false;
