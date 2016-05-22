@@ -3,11 +3,11 @@ package net.pixelstatic.pixtigen.gui;
 import net.pixelstatic.pixtigen.Pixtigen;
 import net.pixelstatic.pixtigen.generator.*;
 import net.pixelstatic.pixtigen.generator.VertexObject.PolygonType;
+import net.pixelstatic.utils.MiscUtils;
 import net.pixelstatic.utils.graphics.Hue;
 import net.pixelstatic.utils.modules.Module;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input.Buttons;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
@@ -29,21 +29,49 @@ public class VertexEditor extends Module<Pixtigen>{
 	ShapeRenderer shape = new ShapeRenderer();
 	Array<VertexCanvas> canvases = new Array<VertexCanvas>();
 	VertexCanvas selectedCanvas;
+	VertexCanvas mouseCanvas;
 	Vector2 vertice;
 	VertexGUI gui;
 	TreeGenerator tree;
-	boolean drawing, drawMode = true;
-	float offsetx, offsety, treeScale = 4f;
+	boolean drawing, drawMode = true, symmetry;
+	float offsetx, offsety, treeScale = 4f, lmousex, lmousey;
 
 	@Override
 	public void update(){
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+		if(mouseCanvas != null) mouseCanvas.list.translate(lmousex - Gdx.input.getX(), lmousey - Gdx.graphics.getHeight() + Gdx.input.getY());
 		input();
+		drawCenter();
+		drawPolygons();
 		shape.begin(ShapeType.Line);
 		draw();
 		shape.end();
 		drawTree();
 		ActorAlign.updateAll();
+		if(mouseCanvas != null) mouseCanvas.list.translate(-(lmousex - Gdx.input.getX()), -(lmousey - Gdx.graphics.getHeight() + Gdx.input.getY()));
+		
+	}
+	
+	void drawPolygons(){
+		gui.polybatch.setProjectionMatrix(gui.stage.getBatch().getProjectionMatrix());
+		gui.polybatch.begin();
+		
+		for(VertexCanvas canvas : canvases){
+			canvas.updateSprite();
+			if(canvas != selectedCanvas)
+			canvas.polygon.draw(gui.polybatch);
+		}
+		
+		if(!drawing)selectedCanvas.polygon.draw(gui.polybatch);
+		gui.polybatch.end();
+	}
+	
+	void drawCenter(){
+		shape.begin(ShapeType.Line);
+		shape.setColor(Hue.rgb(106, 162, 246));
+		shape.line(Gdx.graphics.getWidth() / 2 + offsetx, 0, Gdx.graphics.getWidth() / 2 + offsetx, Gdx.graphics.getHeight());
+		shape.line(0, Gdx.graphics.getHeight() / 2 + offsety, Gdx.graphics.getWidth(), Gdx.graphics.getHeight() / 2 + offsety);
+		shape.end();
 	}
 
 	void drawTree(){
@@ -54,27 +82,22 @@ public class VertexEditor extends Module<Pixtigen>{
 	}
 
 	void draw(){
-		//draw center of coords
-		shape.set(ShapeType.Line);
-		shape.setColor(Hue.rgb(106, 162, 246));
-		shape.line(Gdx.graphics.getWidth() / 2 + offsetx, 0, Gdx.graphics.getWidth() / 2 + offsetx, Gdx.graphics.getHeight());
-		shape.line(0, Gdx.graphics.getHeight() / 2 + offsety, Gdx.graphics.getWidth(), Gdx.graphics.getHeight() / 2 + offsety);
-
 		for(VertexCanvas canvas : canvases){
 			if(canvas == this.selectedCanvas) continue;
-			drawVertices(canvas, canvas.vertices(), false);
+			//drawVertices(canvas, canvas.vertices(), false);
 		}
 
 		drawVertices(selectedCanvas, selectedCanvas.vertices(), false);
-		if(selectedCanvas.symmetry && drawing) drawVertices(selectedCanvas, mirror(selectedCanvas.vertices()), true);
+		if(symmetry && drawing) drawVertices(selectedCanvas, mirror(selectedCanvas.vertices()), true);
 
 		shape.set(ShapeType.Line);
 		shape.setColor(Hue.rgb(130, 52, 180));
-		if(selectedCanvas.symmetry && drawing) shape.line(centerx(), 0, centerx(), Gdx.graphics.getHeight());
+		if(symmetry && drawing) shape.line(centerx(), 0, centerx(), Gdx.graphics.getHeight());
 
 		float lineoffset = 1f;
 		shape.setColor(Hue.rgb(76, 52, 255));
 		shape.rect(lineoffset, lineoffset, tree.width * treeScale, tree.height * treeScale);
+		
 	}
 
 	float centerx(){
@@ -87,8 +110,8 @@ public class VertexEditor extends Module<Pixtigen>{
 
 	void drawVertices(VertexCanvas canvas, Array<Vector2> vertices, boolean mirror){
 		shape.set(ShapeType.Line);
-		shape.setColor(canvas.list.material.getColor());
-		Gdx.gl.glLineWidth(4);
+		shape.setColor(canvas == mouseCanvas ? Color.RED : canvas.list.material.getColor());
+		Gdx.gl.glLineWidth(canvas == mouseCanvas ? 10 : 4);
 		shape.setAutoShapeType(true);
 		for(int i = 0;i < vertices.size;i ++){
 			Vector2 current = vertices.get(i);
@@ -140,7 +163,7 @@ public class VertexEditor extends Module<Pixtigen>{
 	}
 
 	void finishDrawMode(){
-		if( !selectedCanvas.symmetry) return;
+		if( !symmetry) return;
 		selectedCanvas.list.mirrorVertices();
 	}
 
@@ -162,35 +185,13 @@ public class VertexEditor extends Module<Pixtigen>{
 		return selected;
 	}
 
-	void input(){
-
+	void input(){	
 		if(vertice != null){
 			vertice.set(Gdx.input.getX() - centerx(), (Gdx.graphics.getHeight() - Gdx.input.getY()) - centery());
-		}
-
-		if(Gdx.input.isButtonPressed(Buttons.LEFT) && (Gdx.input.getX() < Gdx.graphics.getWidth() - 130 || Gdx.input.getY() > 30)){
-			//	editor.stage.setKeyboardFocus(null);
 		}
 		if(gui.stage.getKeyboardFocus() != null) return;
 		float speed = 6f;
 		float offsetx = 0, offsety = 0;
-
-		/*
-				if(Gdx.input.isKeyJustPressed(Keys.R)){
-					System.out.println("yay");
-					int minvertices = Integer.MAX_VALUE;
-					for(VertexCanvas canvas : canvases)
-						minvertices = Math.min(canvas.list.vertices.size, minvertices);
-					
-					if(minvertices >= 3){
-						tree.setVertexObject(new VertexObject(canvases));
-						tree.generate();
-					}else{
-						gui.showInfo("Each polygon must have at least 3 vertices\nfor the tree to generate!");
-					}
-				}
-				*/
-
 		if(Gdx.input.isKeyPressed(Keys.W)) offsety += speed;
 		if(Gdx.input.isKeyPressed(Keys.D)) offsetx += speed;
 		if(Gdx.input.isKeyPressed(Keys.S)) offsety -= speed;
@@ -210,7 +211,9 @@ public class VertexEditor extends Module<Pixtigen>{
 		gui.editor = this;
 		shape = new ShapeRenderer();
 		tree = new TreeGenerator();
-
+		
+		VertexCanvas.texture = MiscUtils.blankTextureRegion();
+		
 		selectedCanvas = new VertexCanvas("leafsegment", 0);
 		selectedCanvas.list.material = Material.leaves;
 		canvases.add(selectedCanvas);
@@ -270,6 +273,8 @@ public class VertexEditor extends Module<Pixtigen>{
 			canvas.list.type = object.lists.get(string).type;
 		}
 		selectedCanvas = canvases.first();
+		gui.updateCanvasList();
+		gui.canvaslist.setSelectedIndex(0);
 		updateBoxes();
 	}
 	

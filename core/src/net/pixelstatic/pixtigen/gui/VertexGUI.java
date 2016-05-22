@@ -13,6 +13,7 @@ import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.*;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField.TextFieldListener;
@@ -38,7 +39,17 @@ public class VertexGUI extends Module<Pixtigen>{
 	ColorPicker picker;
 	Label colorlabel, materiallabel, filterlabel;
 	SelectBox<Material> materialbox;
+	PolygonSpriteBatch polybatch;
 	float uiwidth = 130, uiheight = 30;
+	
+
+	public VertexGUI(){
+		polybatch = new PolygonSpriteBatch();
+		skin = new Skin(Gdx.files.internal("gui/uiskin.json"));
+		stage = new Stage();
+		stage.setViewport(new ScreenViewport());
+		ActorAlign.stage = stage;
+	}
 
 	@Override
 	public void update(){
@@ -53,7 +64,7 @@ public class VertexGUI extends Module<Pixtigen>{
 		boolean drawMode = editor.drawMode;
 		add.setPosition(0, Gdx.graphics.getHeight() - pane.getHeight() - 30);
 		pane.setPosition(0, Gdx.graphics.getHeight() - pane.getHeight());
-		symmetry.setChecked(editor.selectedCanvas.symmetry);
+		symmetry.setChecked(editor.symmetry);
 		overwrite.setChecked(drawMode);
 		overwrite.setText(drawMode ? "Draw Mode" : "Edit Mode");
 		clear.setDisabled( !drawMode);
@@ -68,17 +79,6 @@ public class VertexGUI extends Module<Pixtigen>{
 		plex.addProcessor(new VertexInput(getModule(VertexEditor.class)));
 		plex.addProcessor(stage);
 		Gdx.input.setInputProcessor(plex);
-		
-		for(int i = 0; i < 100; i ++){
-			
-		}
-	}
-
-	public VertexGUI(){
-		skin = new Skin(Gdx.files.internal("gui/uiskin.json"));
-		stage = new Stage();
-		stage.setViewport(new ScreenViewport());
-		ActorAlign.stage = stage;
 	}
 
 	public void setupGUI(){
@@ -162,8 +162,8 @@ public class VertexGUI extends Module<Pixtigen>{
 		symmetry.addListener(new ClickListener(){
 			public void clicked(InputEvent event, float x, float y){
 				if(editor.drawMode){
-					editor.selectedCanvas.symmetry = !editor.selectedCanvas.symmetry;
-					if(editor.selectedCanvas.symmetry) editor.selectedCanvas.clear();
+					editor.symmetry = !editor.symmetry;
+					if(editor.symmetry) editor.selectedCanvas.clear();
 				}
 			}
 		});

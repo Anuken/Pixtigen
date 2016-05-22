@@ -68,6 +68,7 @@ public class TreeGenerator implements Disposable{
 				if(pixel.material == null) continue;
 				float f = shading[x][y];
 				for( Filter filter : filters.get(pixel.material)){
+					if(!filter.enabled) continue;
 					filter.type.values = filter.values;
 					f = filter.type.change(f);
 				}
