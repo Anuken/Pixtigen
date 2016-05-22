@@ -38,8 +38,8 @@ public class VertexEditor extends Module<Pixtigen>{
 
 	@Override
 	public void update(){
+		translateCanvas(-1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-		if(mouseCanvas != null) mouseCanvas.list.translate(lmousex - Gdx.input.getX(), lmousey - Gdx.graphics.getHeight() + Gdx.input.getY());
 		input();
 		drawCenter();
 		drawPolygons();
@@ -48,24 +48,27 @@ public class VertexEditor extends Module<Pixtigen>{
 		shape.end();
 		drawTree();
 		ActorAlign.updateAll();
-		if(mouseCanvas != null) mouseCanvas.list.translate(-(lmousex - Gdx.input.getX()), -(lmousey - Gdx.graphics.getHeight() + Gdx.input.getY()));
-		
+		translateCanvas(1);
 	}
 	
+	void translateCanvas(int s){
+		if(mouseCanvas != null) mouseCanvas.list.translate(s*(lmousex - Gdx.input.getX()), s*(lmousey - Gdx.graphics.getHeight() + Gdx.input.getY()));
+
+	}
+
 	void drawPolygons(){
 		gui.polybatch.setProjectionMatrix(gui.stage.getBatch().getProjectionMatrix());
 		gui.polybatch.begin();
-		
+
 		for(VertexCanvas canvas : canvases){
 			canvas.updateSprite();
-			if(canvas != selectedCanvas)
-			canvas.polygon.draw(gui.polybatch);
+			if(canvas != selectedCanvas) canvas.polygon.draw(gui.polybatch);
 		}
-		
-		if(!drawing)selectedCanvas.polygon.draw(gui.polybatch);
+
+		if( !drawing) selectedCanvas.polygon.draw(gui.polybatch);
 		gui.polybatch.end();
 	}
-	
+
 	void drawCenter(){
 		shape.begin(ShapeType.Line);
 		shape.setColor(Hue.rgb(106, 162, 246));
@@ -97,7 +100,7 @@ public class VertexEditor extends Module<Pixtigen>{
 		float lineoffset = 1f;
 		shape.setColor(Hue.rgb(76, 52, 255));
 		shape.rect(lineoffset, lineoffset, tree.width * treeScale, tree.height * treeScale);
-		
+
 	}
 
 	float centerx(){
@@ -185,7 +188,7 @@ public class VertexEditor extends Module<Pixtigen>{
 		return selected;
 	}
 
-	void input(){	
+	void input(){
 		if(vertice != null){
 			vertice.set(Gdx.input.getX() - centerx(), (Gdx.graphics.getHeight() - Gdx.input.getY()) - centery());
 		}
@@ -211,9 +214,9 @@ public class VertexEditor extends Module<Pixtigen>{
 		gui.editor = this;
 		shape = new ShapeRenderer();
 		tree = new TreeGenerator();
-		
+
 		VertexCanvas.texture = MiscUtils.blankTextureRegion();
-		
+
 		selectedCanvas = new VertexCanvas("leafsegment", 0);
 		selectedCanvas.list.material = Material.leaves;
 		canvases.add(selectedCanvas);
@@ -227,14 +230,14 @@ public class VertexEditor extends Module<Pixtigen>{
 		EditorState save = EditorState.readState(file);
 
 		//note: this random casting is needed because JSON serializes enums as strings?
-		
+
 		ObjectMap<String, Array<Filter>> fmap = (ObjectMap<String, Array<Filter>>)(Object)save.filtervalues;
 		ObjectMap<Material, Array<Filter>> filters = new ObjectMap<>();
-		
+
 		for(String string : fmap.keys()){
 			filters.put(Material.valueOf(string), fmap.get(string));
 		}
-		
+
 		tree.setAllFilters(filters);
 
 		ObjectMap<String, Color> map = (ObjectMap<String, Color>)((Object)save.colors);
@@ -247,7 +250,7 @@ public class VertexEditor extends Module<Pixtigen>{
 
 	void saveState(FileHandle file){
 		EditorState save = new EditorState();
-		
+
 		save.filtervalues = tree.getAllFilters();
 
 		for(Material material : Material.values()){
@@ -277,7 +280,7 @@ public class VertexEditor extends Module<Pixtigen>{
 		gui.canvaslist.setSelectedIndex(0);
 		updateBoxes();
 	}
-	
+
 	public void updateBoxes(){
 		gui.field.setText(selectedCanvas.name);
 		gui.box.setSelected(selectedCanvas.list.material);

@@ -96,6 +96,7 @@ public class VertexInput implements InputProcessor{
 	public boolean touchUp(int screenX, int screenY, int pointer, int button){
 		if(button == Buttons.LEFT){
 			editor.vertice = null;
+			if(editor.mouseCanvas != null) editor.translateCanvas(-1);
 			editor.mouseCanvas = null;
 		}
 		return false;
