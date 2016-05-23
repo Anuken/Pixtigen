@@ -73,6 +73,7 @@ public class VertexInput implements InputProcessor{
 			if(selected == null){
 				Vector2 mouse = new Vector2(screenX - Gdx.graphics.getWidth()/2 - editor.offsetx, (Gdx.graphics.getHeight() - screenY) - Gdx.graphics.getHeight()/2 - editor.offsety);
 				for(VertexCanvas canvas : editor.canvases){
+					if(canvas.list.vertices.size > 2)
 					if(Intersector.isPointInPolygon(canvas.list.vertices, mouse)){
 						editor.mouseCanvas = canvas;
 						editor.selectedCanvas = canvas;
@@ -107,6 +108,7 @@ public class VertexInput implements InputProcessor{
 
 	@Override
 	public boolean mouseMoved(int screenX, int screenY){
+
 		return false;
 	}
 	

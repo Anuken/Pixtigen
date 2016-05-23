@@ -24,7 +24,8 @@ public class VertexEditor extends Module<Pixtigen>{
 	final Color otherVerticeColor = Color.BLUE;
 	final Color verticeColor = Color.RED;
 	final Color selectColor = Color.PURPLE;
-	final Color nodeColor = Color.GREEN;
+	final Color nodeColor = Color.YELLOW;
+	final Color lineColor = Color.GOLDENROD;
 	final float grabrange = 20;
 	ShapeRenderer shape = new ShapeRenderer();
 	Array<VertexCanvas> canvases = new Array<VertexCanvas>();
@@ -119,7 +120,7 @@ public class VertexEditor extends Module<Pixtigen>{
 
 	void drawVertices(VertexCanvas canvas, Array<Vector2> vertices, boolean mirror){
 		shape.set(ShapeType.Line);
-		shape.setColor(canvas == mouseCanvas ? Color.RED : canvas.list.material.getColor());
+		shape.setColor(canvas == mouseCanvas ? Color.RED : lineColor);
 		Gdx.gl.glLineWidth(canvas == mouseCanvas ? 10 : 4);
 		shape.setAutoShapeType(true);
 		for(int i = 0;i < vertices.size;i ++){

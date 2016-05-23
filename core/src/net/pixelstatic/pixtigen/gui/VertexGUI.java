@@ -1,8 +1,9 @@
 package net.pixelstatic.pixtigen.gui;
 
 import net.pixelstatic.pixtigen.Pixtigen;
-import net.pixelstatic.pixtigen.generator.*;
-import net.pixelstatic.pixtigen.generator.VertexObject.PolygonType;
+import net.pixelstatic.pixtigen.generator.Filter;
+import net.pixelstatic.pixtigen.generator.FilterType;
+import net.pixelstatic.pixtigen.generator.Material;
 import net.pixelstatic.utils.modules.Module;
 import net.pixelstatic.utils.scene2D.ColorPicker;
 import net.pixelstatic.utils.scene2D.FileDialog;
@@ -32,7 +33,6 @@ public class VertexGUI extends Module<Pixtigen>{
 	ScrollPane pane;
 	List<VertexCanvas> canvaslist;
 	SelectBox<Material> box;
-	SelectBox<PolygonType> typebox;
 	Texture colorbox;
 	TextField field;
 	FilterDialog editdialog;
@@ -143,20 +143,6 @@ public class VertexGUI extends Module<Pixtigen>{
 
 		table.row().top().right();
 		table.add(box).size(width, height);
-
-		typebox = new SelectBox<PolygonType>(skin);
-		typebox.setItems(PolygonType.values());
-		typebox.setSelectedIndex(0);
-
-		typebox.addListener(new ChangeListener(){
-			@Override
-			public void changed(ChangeEvent event, Actor actor){
-				editor.selectedCanvas.list.type = typebox.getSelected();
-			}
-		});
-
-		table.row().top().right();
-		table.add(typebox).size(width, height);
 
 		symmetry = new TextButton("Symmetry", skin, "toggle");
 		symmetry.addListener(new ClickListener(){
@@ -538,7 +524,6 @@ public class VertexGUI extends Module<Pixtigen>{
 	public void updateCanvasInfo(){
 		field.setText(editor.selectedCanvas.name);
 		box.setSelected(editor.selectedCanvas.list.material);
-		typebox.setSelected(editor.selectedCanvas.list.type);
 		canvaslist.setSelected(editor.selectedCanvas);
 	}
 
