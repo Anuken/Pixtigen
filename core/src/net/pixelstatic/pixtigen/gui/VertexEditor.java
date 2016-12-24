@@ -1,11 +1,11 @@
 package net.pixelstatic.pixtigen.gui;
 
+import io.anuke.utils.modules.Module;
+import net.pixelstatic.gdxutils.Hue;
+import net.pixelstatic.gdxutils.PixmapUtils;
 import net.pixelstatic.pixtigen.Pixtigen;
 import net.pixelstatic.pixtigen.generator.*;
 import net.pixelstatic.pixtigen.generator.VertexObject.PolygonType;
-import net.pixelstatic.utils.MiscUtils;
-import net.pixelstatic.utils.graphics.Hue;
-import net.pixelstatic.utils.modules.Module;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
@@ -221,7 +221,7 @@ public class VertexEditor extends Module<Pixtigen>{
 		shape = new ShapeRenderer();
 		tree = new TreeGenerator();
 
-		VertexCanvas.texture = MiscUtils.blankTextureRegion();
+		VertexCanvas.texture = PixmapUtils.blankTextureRegion();
 
 		selectedCanvas = new VertexCanvas("leafsegment", 0);
 		selectedCanvas.list.material = Material.leaves;

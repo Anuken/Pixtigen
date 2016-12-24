@@ -1,12 +1,12 @@
 package net.pixelstatic.pixtigen.gui;
 
+import io.anuke.utils.modules.Module;
+import io.anuke.utils.scene2D.ColorPicker;
+import io.anuke.utils.scene2D.FileDialog;
 import net.pixelstatic.pixtigen.Pixtigen;
 import net.pixelstatic.pixtigen.generator.Filter;
 import net.pixelstatic.pixtigen.generator.FilterType;
 import net.pixelstatic.pixtigen.generator.Material;
-import net.pixelstatic.utils.modules.Module;
-import net.pixelstatic.utils.scene2D.ColorPicker;
-import net.pixelstatic.utils.scene2D.FileDialog;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;

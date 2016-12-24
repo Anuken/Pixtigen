@@ -18,6 +18,13 @@ dark
   orig: 1, 1
   offset: 0, 0
   index: -1
+alpha
+  rotate: false
+  xy: 102, 11
+  size: 2, 2
+  orig: 2, 2
+  offset: 0, 0
+  index: -1
 check-off
   rotate: false
   xy: 42, 11

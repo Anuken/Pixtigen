@@ -1,7 +1,7 @@
 package net.pixelstatic.pixtigen.generator;
 
 
-import net.pixelstatic.utils.Noise;
+import net.pixelstatic.gdxutils.Noise;
 
 import com.badlogic.gdx.graphics.Color;
 import com.jhlabs.image.CellularFilter;

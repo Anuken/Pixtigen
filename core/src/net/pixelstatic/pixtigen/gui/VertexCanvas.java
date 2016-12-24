@@ -1,9 +1,9 @@
 package net.pixelstatic.pixtigen.gui;
 
+import net.pixelstatic.gdxutils.FilledPolygon;
 import net.pixelstatic.pixtigen.generator.Material;
 import net.pixelstatic.pixtigen.generator.VertexList;
 import net.pixelstatic.pixtigen.generator.VertexObject.PolygonType;
-import net.pixelstatic.utils.graphics.FilledPolygon;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;

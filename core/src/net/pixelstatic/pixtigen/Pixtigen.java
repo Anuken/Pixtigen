@@ -1,8 +1,8 @@
 package net.pixelstatic.pixtigen;
 
+import io.anuke.utils.modules.ModuleController;
 import net.pixelstatic.pixtigen.gui.VertexEditor;
 import net.pixelstatic.pixtigen.gui.VertexGUI;
-import net.pixelstatic.utils.modules.ModuleController;
 
 public class Pixtigen extends ModuleController<Pixtigen>{
 	
