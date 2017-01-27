@@ -68,7 +68,7 @@ com.badlogic.gdx.scenes.scene2d.ui.TextTooltip$TextTooltipStyle: {
 		background: default-pane
 	}
 },
-net.pixelstatic.utils.scene2D.DefaultFileChooser$Style: {
+io.anuke.pixtigen.gui.DefaultFileChooser$Style: {
     default: {
         pathFieldStyle: default,
         contentsStyle: default,
@@ -77,7 +77,7 @@ net.pixelstatic.utils.scene2D.DefaultFileChooser$Style: {
         contentsPaneStyle: default
     }
 },
-net.pixelstatic.utils.scene2D.ColorPicker$Style: {
+io.anuke.pixtigen.gui.ColorPicker$Style: {
 	default: {
     	colorbox: colorbar
 		border: default-rect
